@@ -1,0 +1,42 @@
+name: hong_kong_scraper
+description: A scraper for all Government of the Hong Kong Special Administrative Region Press Releases
+pipeline:
+  init:
+    # Start URL
+    method: seed
+
+    params:
+    # sequence: - I was trying to use the sequence initializer method,
+    # but the documentation is very ambiguous and doesn't give a proper example.
+    # The 50 days problem can be solved by looping over the last digits of this url
+    # https://memorious.readthedocs.io/en/latest/buildingcrawler.html?highlight=http_rate_limit#initializers
+    # start: 202202
+    # stop: 202203
+      urls:
+        - https://www.info.gov.hk/gia/general/202203/21.htm
+    handle:
+      pass: fetch
+  fetch:
+    # Download the page passed from the seed stage.
+    method: fetch
+    params:
+      http_rate_limit: 50 # http rate, gov.hk blocks the connection sometimes
+      rules:
+        and:
+          - domain: info.gov.hk
+          - not:
+              or:
+                - domain: brandhk.gov.hk
+    handle:
+      pass: crawl
+  crawl:
+    method: example.article.example.article:crawl
+    params:
+      store:
+        table: hong_kong_scraper
+    handle:
+      store: store
+      fetch: fetch
+  store:
+    # Store the crawled document to a sqlite database
+    method: db
