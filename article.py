@@ -33,3 +33,5 @@ def crawl(context, data):
         rules = context.params.get("match") or {"match_all": {}}
         if Rule.get_rule(rules).apply(result):
             context.emit(rule="store", data=data)
+
+            
